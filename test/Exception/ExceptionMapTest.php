@@ -76,6 +76,29 @@ class ExceptionMapTest extends TestCase
     /**
      * @test
      */
+    public function it_should_handle_the_newer_IncompatibleAvroSchema_code(): void
+    {
+        $this->assertSchemaRegistryException(
+            IncompatibleAvroSchemaException::class,
+            'Incompatible Avro schema',
+            40901,
+            (ExceptionMap::instance())(
+                $this->createRequestException(
+                    '409 Conflict',
+                    new Request('GET', '/'),
+                    new Response(
+                        409,
+                        ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
+                        '{"error_code":40901,"message": "Incompatible Avro schema"}',
+                    ),
+                )
+            ),
+        );
+    }
+
+    /**
+     * @test
+     */
     public function it_should_handle_BackendDataStore_code(): void
     {
         $this->assertSchemaRegistryException(

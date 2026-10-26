@@ -9,7 +9,7 @@ CONFLUENT_NETWORK_GATEWAY ?= 172.68.0.1
 SCHEMA_REGISTRY_IPV4 ?= 172.68.0.103
 KAFKA_BROKER_IPV4 ?= 172.68.0.102
 ZOOKEEPER_IPV4 ?= 172.68.0.101
-DOCKER_NETWORK ?= schema-registry-php-client-net
+PLATFORM_NETWORK ?= schema-registry-php-client-net
 COMPOSER ?= bin/composer.phar
 COMPOSER_VERSION ?= 2.10.3
 COMPOSER_STABILITY ?= --prefer-stable
@@ -53,7 +53,7 @@ phpunit:
 	PHP_VERSION=$(PHP_VERSION) $(PHP) $(XDEBUG_OPTIONS) $(PHPUNIT) --exclude-group integration
 
 phpunit-integration:
-	DOCKER_NETWORK=$(DOCKER_NETWORK) DOCKER_OPTS="$${DOCKER_OPTS:--it} -e ENABLE_INTEGRATION_TEST=1 -e TEST_SCHEMA_REGISTRY_HOST=$(SCHEMA_REGISTRY_IPV4) -e TEST_SCHEMA_REGISTRY_PORT=8081" \
+	DOCKER_NETWORK=$(PLATFORM_NETWORK) DOCKER_OPTS="$${DOCKER_OPTS:--it} -e ENABLE_INTEGRATION_TEST=1 -e TEST_SCHEMA_REGISTRY_HOST=$(SCHEMA_REGISTRY_IPV4) -e TEST_SCHEMA_REGISTRY_PORT=8081" \
 	  PHP_VERSION=$(PHP_VERSION) $(PHP) $(XDEBUG_OPTIONS) $(PHPUNIT) -c phpunit-integration.xml.dist --group integration
 
 coverage:
@@ -74,7 +74,7 @@ install-phars:
 platform:
 	docker compose down
 	docker compose up -d
-	DOCKER_NETWORK=$(DOCKER_NETWORK) bin/wait-for-all.sh
+	DOCKER_NETWORK=$(PLATFORM_NETWORK) bin/wait-for-all.sh
 
 platform-logs:
 	docker compose logs -f
