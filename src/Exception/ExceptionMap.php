@@ -107,6 +107,7 @@ final class ExceptionMap
     {
         switch ($errorCode) {
             case IncompatibleAvroSchemaException::errorCode():
+            case IncompatibleAvroSchemaException::ERROR_CODE_INCOMPATIBLE_SCHEMA:
                 return new IncompatibleAvroSchemaException($errorMessage, $errorCode);
 
             case BackendDataStoreException::errorCode():
