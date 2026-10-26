@@ -425,7 +425,7 @@ class CachedRegistryTest extends TestCase
 
         self::assertEquals(
             $this->cachedRegistry->register($this->subject, $this->schema)->wait(),
-            $subjectNotFoundException
+            $subjectNotFoundException,
         );
     }
 }

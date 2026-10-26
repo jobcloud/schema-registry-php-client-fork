@@ -44,7 +44,7 @@ class DoctrineCacheAdapter implements CacheAdapter
     {
         $this->doctrineCache->save(
             $this->makeKeyFromSubjectAndVersion($subject, $version),
-            (string) $schema
+            (string) $schema,
         );
     }
 
@@ -86,7 +86,7 @@ class DoctrineCacheAdapter implements CacheAdapter
     public function getWithSubjectAndVersion(string $subject, int $version): ?AvroSchema
     {
         $rawSchema = $this->doctrineCache->fetch(
-            $this->makeKeyFromSubjectAndVersion($subject, $version)
+            $this->makeKeyFromSubjectAndVersion($subject, $version),
         );
 
         if (!$rawSchema) {
@@ -118,7 +118,7 @@ class DoctrineCacheAdapter implements CacheAdapter
     public function hasSchemaForSubjectAndVersion(string $subject, int $version): bool
     {
         return $this->doctrineCache->contains(
-            $this->makeKeyFromSubjectAndVersion($subject, $version)
+            $this->makeKeyFromSubjectAndVersion($subject, $version),
         );
     }
 

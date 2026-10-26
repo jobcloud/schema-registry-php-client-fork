@@ -3,23 +3,24 @@ MAKEFLAGS =+ -rR --warn-undefined-variables
 
 .PHONY: *
 
-CONFLUENT_VERSION ?= latest
+CONFLUENT_VERSION ?= 7.5.0
 CONFLUENT_NETWORK_SUBNET ?= 172.68.0.0/24
 CONFLUENT_NETWORK_GATEWAY ?= 172.68.0.1
 SCHEMA_REGISTRY_IPV4 ?= 172.68.0.103
 KAFKA_BROKER_IPV4 ?= 172.68.0.102
 ZOOKEEPER_IPV4 ?= 172.68.0.101
+DOCKER_NETWORK ?= schema-registry-php-client-net
 COMPOSER ?= bin/composer.phar
-COMPOSER_VERSION ?= 2.1.12
+COMPOSER_VERSION ?= 2.10.3
 COMPOSER_STABILITY ?= --prefer-stable
 PHP_STAN ?= bin/phpstan.phar
-PHP_STAN_VERSION ?= 1.1.2
+PHP_STAN_VERSION ?= 2.3.2
 PHP_CS_FIXER ?= bin/php-cs-fixer.phar
-PHP_CS_FIXER_VERSION ?= 3.2.1
+PHP_CS_FIXER_VERSION ?= 3.95.27
 PHPUNIT ?= vendor/bin/phpunit
 PHP ?= bin/php
 PHP_VERSION ?= 7.4
-XDEBUG_VERSION ?= 3.1.1
+XDEBUG_VERSION ?= 3.1.5
 XDEBUG_OPTIONS ?= -d xdebug.mode=off
 export
 
@@ -51,15 +52,16 @@ cs-fixer-modify:
 phpunit:
 	PHP_VERSION=$(PHP_VERSION) $(PHP) $(XDEBUG_OPTIONS) $(PHPUNIT) --exclude-group integration
 
+phpunit-integration:
+	DOCKER_NETWORK=$(DOCKER_NETWORK) DOCKER_OPTS="$${DOCKER_OPTS:--it} -e ENABLE_INTEGRATION_TEST=1 -e TEST_SCHEMA_REGISTRY_HOST=$(SCHEMA_REGISTRY_IPV4) -e TEST_SCHEMA_REGISTRY_PORT=8081" \
+	  PHP_VERSION=$(PHP_VERSION) $(PHP) $(XDEBUG_OPTIONS) $(PHPUNIT) -c phpunit-integration.xml.dist --group integration
+
 coverage:
 	mkdir -p build
-	PHP_VERSION=$(PHP_VERSION) $(PHP) -d xdebug.mode=coverage -d xdebug.coverage_enable=1 vendor/bin/phpunit --exclude-group integration \
+	PHP_VERSION=$(PHP_VERSION) $(PHP) -d xdebug.mode=coverage vendor/bin/phpunit --exclude-group integration \
 	  --coverage-clover=build/coverage.clover --coverage-text
 
 ci-local: cs-fixer phpstan phpunit
-
-examples:
-	PHP_VERSION=$(PHP_VERSION) $(PHP) examples/*
 
 install-phars:
 	curl https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v$(PHP_CS_FIXER_VERSION)/php-cs-fixer.phar -o bin/php-cs-fixer.phar -LR -z bin/php-cs-fixer.phar
@@ -70,13 +72,13 @@ install-phars:
 	chmod a+x bin/phpstan.phar
 
 platform:
-	docker-compose down
-	docker-compose up -d
-	bin/wait-for-all.sh
+	docker compose down
+	docker compose up -d
+	DOCKER_NETWORK=$(DOCKER_NETWORK) bin/wait-for-all.sh
 
 platform-logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 clean:
 	rm -rf build
-	docker-compose down
+	docker compose down

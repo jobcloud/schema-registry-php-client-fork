@@ -6,21 +6,22 @@ on:
       - master
 jobs:
   build-source:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       -
         name: Install phars
         run: |
           make install-phars
       -
         name: Upload source directory
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: source
           path: .
+          include-hidden-files: true
   php-xdebug-docker:
     needs:
       - build-source
@@ -39,19 +40,28 @@ jobs:
           -
             version: '8.2'
             xdebug: '3.2.1'
-    runs-on: ubuntu-20.04
+          -
+            version: '8.3'
+            xdebug: '3.4.0'
+          -
+            version: '8.4'
+            xdebug: '3.4.0'
+          -
+            version: '8.5'
+            xdebug: '3.5.0'
+    runs-on: ubuntu-latest
     steps:
       -
         name: Download sources
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: source
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       -
         name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -70,12 +80,12 @@ jobs:
           docker save schema-registry-client:${{ matrix.php.version }} -o schema-registry-client-${{ matrix.php.version }}.tgz
       -
         name: Upload docker image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: schema-registry-client-${{ matrix.php.version }}
           path: schema-registry-client-${{ matrix.php.version }}.tgz
   ci-checks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs:
       - php-xdebug-docker
     strategy:
@@ -94,6 +104,15 @@ jobs:
             version: '8.2'
             composer: --prefer-lowest
           -
+            version: '8.3'
+            composer: --prefer-lowest
+          -
+            version: '8.4'
+            composer: --prefer-lowest
+          -
+            version: '8.5'
+            composer: --prefer-lowest
+          -
             version: '7.4'
             composer: --prefer-stable
           -
@@ -105,18 +124,27 @@ jobs:
           -
             version: '8.2'
             composer: --prefer-stable
+          -
+            version: '8.3'
+            composer: --prefer-stable
+          -
+            version: '8.4'
+            composer: --prefer-stable
+          -
+            version: '8.5'
+            composer: --prefer-stable
     steps:
       -
         name: Download sources
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: source
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       -
         name: Download docker image
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: schema-registry-client-${{ matrix.php.version }}
       -
@@ -131,7 +159,7 @@ jobs:
             composer update --no-interaction --no-scripts --no-ansi ${{ matrix.php.composer }}
       -
         name: Run PHPStan analysis
-        if: ${{ matrix.php.version == '7.4' && matrix.php.composer == '--prefer-stable' }}
+        if: ${{ matrix.php.version == '7.4' }}
         run: |
           chmod a+x bin/phpstan.phar
           docker run -i --rm --net=host --sig-proxy=true --pid=host -m 4000M --entrypoint="php" \
@@ -144,7 +172,7 @@ jobs:
           chmod a+x bin/php-cs-fixer.phar
           docker run -i --rm --net=host --sig-proxy=true --pid=host -m 1000M --entrypoint="php" \
             -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" schema-registry-client:${{ matrix.php.version }} \
-            -d xdebug.mode=off -d xdebug.coverage_enable=0 bin/php-cs-fixer.phar fix --config=.php-cs-fixer.dist.php \
+            -d xdebug.mode=off bin/php-cs-fixer.phar fix --config=.php-cs-fixer.dist.php \
             --diff -v --dry-run --path-mode=intersection --allow-risky=yes \
             src test
       -
@@ -164,21 +192,21 @@ jobs:
             -d xdebug.mode=coverage vendor/bin/phpunit --exclude-group integration --coverage-clover=build/coverage.clover --coverage-text
       - name: Publish code coverage
         if: ${{ matrix.php.version == '7.4' && matrix.php.composer == '--prefer-stable' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        uses: paambaati/codeclimate-action@v3.0.0
+        uses: paambaati/codeclimate-action@v9.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CODE_CLIMATE_REPORTER_ID}}
         with:
           coverageLocations: |
             ${{github.workspace}}/build/coverage.clover:clover
   confluent-integration:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs:
       - php-xdebug-docker
     strategy:
       matrix:
         confluent:
           -
-            version: latest
+            version: 7.5.0
           -
             version: 4.1.4
           -
@@ -186,15 +214,15 @@ jobs:
     steps:
       -
         name: Download sources
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: source
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       -
         name: Download docker image
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: schema-registry-client-7.4
       -

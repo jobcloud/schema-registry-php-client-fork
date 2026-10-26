@@ -36,7 +36,7 @@ class BlockingRegistry implements SynchronousRegistry
     public function register(string $subject, AvroSchema $schema, AvroReference ...$references): int
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->register($subject, $schema, ...$references)
+            $this->asyncRegistry->register($subject, $schema, ...$references),
         )->wait();
     }
 
@@ -49,7 +49,7 @@ class BlockingRegistry implements SynchronousRegistry
     public function schemaId(string $subject, AvroSchema $schema): int
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->schemaId($subject, $schema)
+            $this->asyncRegistry->schemaId($subject, $schema),
         )->wait();
     }
 
@@ -62,7 +62,7 @@ class BlockingRegistry implements SynchronousRegistry
     public function schemaForId(int $schemaId): AvroSchema
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->schemaForId($schemaId)
+            $this->asyncRegistry->schemaForId($schemaId),
         )->wait();
     }
 
@@ -75,7 +75,7 @@ class BlockingRegistry implements SynchronousRegistry
     public function schemaForSubjectAndVersion(string $subject, int $version): AvroSchema
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->schemaForSubjectAndVersion($subject, $version)
+            $this->asyncRegistry->schemaForSubjectAndVersion($subject, $version),
         )->wait();
     }
 
@@ -88,7 +88,7 @@ class BlockingRegistry implements SynchronousRegistry
     public function schemaVersion(string $subject, AvroSchema $schema): int
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->schemaVersion($subject, $schema)
+            $this->asyncRegistry->schemaVersion($subject, $schema),
         )->wait();
     }
 
@@ -101,14 +101,14 @@ class BlockingRegistry implements SynchronousRegistry
     public function latestVersion(string $subject): AvroSchema
     {
         return $this->addExceptionThrowCallableToPromise(
-            $this->asyncRegistry->latestVersion($subject)
+            $this->asyncRegistry->latestVersion($subject),
         )->wait();
     }
 
     /**
-     * @param PromiseInterface $promise
+     * @param PromiseInterface<mixed, mixed> $promise
      *
-     * @return PromiseInterface
+     * @return PromiseInterface<mixed, mixed>
      */
     private function addExceptionThrowCallableToPromise(PromiseInterface $promise): PromiseInterface
     {

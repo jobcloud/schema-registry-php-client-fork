@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FlixTech\SchemaRegistryApi\Requests;
 
 use Assert\Assert;
 use FlixTech\SchemaRegistryApi\Schema\AvroReference;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
+
 use const FlixTech\SchemaRegistryApi\Constants\ACCEPT_HEADER;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_BACKWARD;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_BACKWARD_TRANSITIVE;
@@ -16,6 +19,7 @@ use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_FULL_TRANSITIVE;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_NONE;
 use const FlixTech\SchemaRegistryApi\Constants\CONTENT_TYPE_HEADER;
 use const FlixTech\SchemaRegistryApi\Constants\VERSION_LATEST;
+
 use function implode;
 
 function allSubjectsRequest(): RequestInterface
@@ -23,7 +27,7 @@ function allSubjectsRequest(): RequestInterface
     return new Request(
         'GET',
         'subjects',
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -32,7 +36,7 @@ function allSubjectVersionsRequest(string $subjectName): RequestInterface
     return new Request(
         'GET',
         sprintf('subjects/%s/versions', $subjectName),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -45,7 +49,7 @@ function singleSubjectVersionRequest(string $subjectName, string $versionId): Re
             $subjectName,
             $versionId,
         ),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -55,7 +59,7 @@ function registerNewSchemaVersionWithSubjectRequest(string $schema, string $subj
         'POST',
         sprintf('subjects/%s/versions', $subjectName),
         CONTENT_TYPE_HEADER + ACCEPT_HEADER,
-        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema), ...$references)
+        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema), ...$references),
     );
 }
 
@@ -69,7 +73,7 @@ function checkSchemaCompatibilityAgainstVersionRequest(string $schema, string $s
             $versionId,
         ),
         CONTENT_TYPE_HEADER + ACCEPT_HEADER,
-        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema))
+        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema)),
     );
 }
 
@@ -79,7 +83,7 @@ function checkIfSubjectHasSchemaRegisteredRequest(string $subjectName, string $s
         'POST',
         sprintf('subjects/%s', $subjectName),
         CONTENT_TYPE_HEADER + ACCEPT_HEADER,
-        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema))
+        prepareJsonSchemaForTransfer(validateSchemaStringAsJson($schema)),
     );
 }
 
@@ -88,7 +92,7 @@ function schemaRequest(string $id): RequestInterface
     return new Request(
         'GET',
         sprintf('schemas/ids/%s', $id),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -97,7 +101,7 @@ function defaultCompatibilityLevelRequest(): RequestInterface
     return new Request(
         'GET',
         'config',
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -107,7 +111,7 @@ function changeDefaultCompatibilityLevelRequest(string $level): RequestInterface
         'PUT',
         'config',
         ACCEPT_HEADER,
-        prepareCompatibilityLevelForTransport(validateCompatibilityLevel($level))
+        prepareCompatibilityLevelForTransport(validateCompatibilityLevel($level)),
     );
 }
 
@@ -116,7 +120,7 @@ function subjectCompatibilityLevelRequest(string $subjectName): RequestInterface
     return new Request(
         'GET',
         sprintf('config/%s', $subjectName),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -126,7 +130,7 @@ function changeSubjectCompatibilityLevelRequest(string $subjectName, string $lev
         'PUT',
         sprintf('config/%s', $subjectName),
         ACCEPT_HEADER,
-        prepareCompatibilityLevelForTransport(validateCompatibilityLevel($level))
+        prepareCompatibilityLevelForTransport(validateCompatibilityLevel($level)),
     );
 }
 
@@ -155,12 +159,12 @@ function validateSchemaStringAsJson(string $schema): string
 function prepareJsonSchemaForTransfer(string $schema, AvroReference ...$references): string
 {
     $return = [
-        'schema' => $schema
+        'schema' => $schema,
     ];
 
     return !$references
-        ? \GuzzleHttp\json_encode($return)
-        : \GuzzleHttp\json_encode(array_merge($return, ['references' => $references]));
+        ? json_encode($return, JSON_THROW_ON_ERROR)
+        : json_encode(array_merge($return, ['references' => $references]), JSON_THROW_ON_ERROR);
 }
 
 function validateCompatibilityLevel(string $compatibilityVersion): string
@@ -177,7 +181,7 @@ function validateCompatibilityLevel(string $compatibilityVersion): string
     ];
     Assert::that($compatibilityVersion)->inArray(
         $compatibilities,
-        '$level must be one of ' . implode(', ', $compatibilities)
+        '$level must be one of ' . implode(', ', $compatibilities),
     );
 
     return $compatibilityVersion;
@@ -185,7 +189,7 @@ function validateCompatibilityLevel(string $compatibilityVersion): string
 
 function prepareCompatibilityLevelForTransport(string $compatibilityLevel): string
 {
-    return \GuzzleHttp\json_encode(['compatibility' => $compatibilityLevel]);
+    return json_encode(['compatibility' => $compatibilityLevel], JSON_THROW_ON_ERROR);
 }
 
 /**
@@ -210,7 +214,7 @@ function deleteSubjectRequest(string $subjectName): RequestInterface
     return new Request(
         'DELETE',
         sprintf('subjects/%s', $subjectName),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }
 
@@ -224,6 +228,6 @@ function deleteSubjectVersionRequest(string $subjectName, string $versionId): Re
     return new Request(
         'DELETE',
         sprintf('subjects/%s/versions/%s', $subjectName, $versionId),
-        ACCEPT_HEADER
+        ACCEPT_HEADER,
     );
 }

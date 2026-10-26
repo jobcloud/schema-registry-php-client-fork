@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FlixTech\SchemaRegistryApi\Constants;
 
 const COMPATIBILITY_NONE = 'NONE';

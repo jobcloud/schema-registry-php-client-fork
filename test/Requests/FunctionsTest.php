@@ -9,6 +9,7 @@ use FlixTech\SchemaRegistryApi\Schema\AvroReference;
 use Generator;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+
 use const FlixTech\SchemaRegistryApi\Constants\ACCEPT_HEADER;
 use const FlixTech\SchemaRegistryApi\Constants\ACCEPT_HEADER_KEY;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_BACKWARD;
@@ -21,6 +22,7 @@ use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_NONE;
 use const FlixTech\SchemaRegistryApi\Constants\CONTENT_TYPE_HEADER;
 use const FlixTech\SchemaRegistryApi\Constants\CONTENT_TYPE_HEADER_KEY;
 use const FlixTech\SchemaRegistryApi\Constants\VERSION_LATEST;
+
 use function FlixTech\SchemaRegistryApi\Requests\allSubjectsRequest;
 use function FlixTech\SchemaRegistryApi\Requests\allSubjectVersionsRequest;
 use function FlixTech\SchemaRegistryApi\Requests\changeDefaultCompatibilityLevelRequest;
@@ -98,7 +100,8 @@ class FunctionsTest extends TestCase
         self::assertJsonStringEqualsJsonString($finalSchema, $request->getBody()->getContents());
     }
 
-    public static function dataForRegisteringSchemas(): Generator {
+    public static function dataForRegisteringSchemas(): Generator
+    {
         yield 'Schema without schema key' => [
             '{"type":"string"}',
             '{"schema":"{\"type\":\"string\"}"}',
@@ -139,7 +142,7 @@ JSON,
         $request = checkSchemaCompatibilityAgainstVersionRequest(
             '{"type":"test"}',
             'test',
-            VERSION_LATEST
+            VERSION_LATEST,
         );
 
         self::assertEquals('POST', $request->getMethod());
@@ -245,7 +248,7 @@ JSON,
     {
         self::assertJsonStringEqualsJsonString(
             '{"schema":"{\"type\":\"string\"}"}',
-            prepareJsonSchemaForTransfer('{"type":"string"}')
+            prepareJsonSchemaForTransfer('{"type":"string"}'),
         );
     }
 
@@ -259,31 +262,31 @@ JSON,
 
         self::assertEquals(
             COMPATIBILITY_NONE,
-            validateCompatibilityLevel(COMPATIBILITY_NONE)
+            validateCompatibilityLevel(COMPATIBILITY_NONE),
         );
         self::assertEquals(
             COMPATIBILITY_FULL,
-            validateCompatibilityLevel(COMPATIBILITY_FULL)
+            validateCompatibilityLevel(COMPATIBILITY_FULL),
         );
         self::assertEquals(
             COMPATIBILITY_FULL_TRANSITIVE,
-            validateCompatibilityLevel(COMPATIBILITY_FULL_TRANSITIVE)
+            validateCompatibilityLevel(COMPATIBILITY_FULL_TRANSITIVE),
         );
         self::assertEquals(
             COMPATIBILITY_BACKWARD,
-            validateCompatibilityLevel(COMPATIBILITY_BACKWARD)
+            validateCompatibilityLevel(COMPATIBILITY_BACKWARD),
         );
         self::assertEquals(
             COMPATIBILITY_BACKWARD_TRANSITIVE,
-            validateCompatibilityLevel(COMPATIBILITY_BACKWARD_TRANSITIVE)
+            validateCompatibilityLevel(COMPATIBILITY_BACKWARD_TRANSITIVE),
         );
         self::assertEquals(
             COMPATIBILITY_FORWARD,
-            validateCompatibilityLevel(COMPATIBILITY_FORWARD)
+            validateCompatibilityLevel(COMPATIBILITY_FORWARD),
         );
         self::assertEquals(
             COMPATIBILITY_FORWARD_TRANSITIVE,
-            validateCompatibilityLevel(COMPATIBILITY_FORWARD_TRANSITIVE)
+            validateCompatibilityLevel(COMPATIBILITY_FORWARD_TRANSITIVE),
         );
 
         validateCompatibilityLevel('INVALID');
@@ -296,31 +299,31 @@ JSON,
     {
         self::assertEquals(
             '{"compatibility":"NONE"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_NONE)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_NONE),
         );
         self::assertEquals(
             '{"compatibility":"BACKWARD"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_BACKWARD)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_BACKWARD),
         );
         self::assertEquals(
             '{"compatibility":"BACKWARD_TRANSITIVE"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_BACKWARD_TRANSITIVE)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_BACKWARD_TRANSITIVE),
         );
         self::assertEquals(
             '{"compatibility":"FORWARD"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_FORWARD)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_FORWARD),
         );
         self::assertEquals(
             '{"compatibility":"FORWARD_TRANSITIVE"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_FORWARD_TRANSITIVE)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_FORWARD_TRANSITIVE),
         );
         self::assertEquals(
             '{"compatibility":"FULL"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_FULL)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_FULL),
         );
         self::assertEquals(
             '{"compatibility":"FULL_TRANSITIVE"}',
-            prepareCompatibilityLevelForTransport(COMPATIBILITY_FULL_TRANSITIVE)
+            prepareCompatibilityLevelForTransport(COMPATIBILITY_FULL_TRANSITIVE),
         );
     }
 
