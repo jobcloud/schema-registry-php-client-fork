@@ -15,6 +15,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -210,6 +211,32 @@ class PromisingRegistryTest extends TestCase
 
         self::assertInstanceOf(SchemaNotFoundException::class, $exception);
         self::assertEquals('test', $exception->getMessage());
+    }
+
+    /**
+     * @test
+     * @dataProvider provideInvalidJsonBodies
+     * @throws SchemaRegistryException
+     */
+    public function it_should_fail_for_response_bodies_that_are_not_json_objects(string $body, string $expectedMessage): void
+    {
+        $this->registry = new PromisingRegistry($this->clientWithMockResponses([new Response(200, [], $body)]));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->registry->schemaId('test', AvroSchema::parse('{"type": "string"}'))->wait();
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public function provideInvalidJsonBodies(): array
+    {
+        return [
+            'json scalar' => ['"text"', 'response content ""text"" is not a valid json object'],
+            'malformed json' => ['{', 'with content "{"'],
+        ];
     }
 
     /**
