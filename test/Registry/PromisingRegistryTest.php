@@ -18,7 +18,9 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+
 use const FlixTech\SchemaRegistryApi\Constants\VERSION_LATEST;
+
 use function FlixTech\SchemaRegistryApi\Requests\checkIfSubjectHasSchemaRegisteredRequest;
 use function FlixTech\SchemaRegistryApi\Requests\registerNewSchemaVersionWithSubjectRequest;
 use function FlixTech\SchemaRegistryApi\Requests\schemaRequest;
@@ -28,7 +30,6 @@ use function FlixTech\SchemaRegistryApi\Requests\validateVersionId;
 
 class PromisingRegistryTest extends TestCase
 {
-
     /**
      * @var PromisingRegistry
      */
@@ -42,7 +43,7 @@ class PromisingRegistryTest extends TestCase
     public function it_should_register_schemas(): void
     {
         $responses = [
-            new Response(200, [], '{"id": 3}')
+            new Response(200, [], '{"id": 3}'),
         ];
         $subject = 'test';
         $schema = AvroSchema::parse('{"type": "string"}');
@@ -53,7 +54,7 @@ class PromisingRegistryTest extends TestCase
 
         $promise = $this->registry->register(
             $subject,
-            $schema
+            $schema,
         );
 
         self::assertEquals(3, $promise->wait());
@@ -68,7 +69,7 @@ class PromisingRegistryTest extends TestCase
     public function it_can_get_the_schema_id_for_a_schema_and_subject(): void
     {
         $responses = [
-            new Response(200, [], '{"id": 2}')
+            new Response(200, [], '{"id": 2}'),
         ];
         $subject = 'test';
         $schema = AvroSchema::parse('{"type": "string"}');
@@ -94,7 +95,7 @@ class PromisingRegistryTest extends TestCase
     public function it_can_get_a_schema_for_id(): void
     {
         $responses = [
-            new Response(200, [], '{"schema": "\"string\""}')
+            new Response(200, [], '{"schema": "\"string\""}'),
         ];
         $schema = AvroSchema::parse('"string"');
         $expectedRequest = schemaRequest(validateSchemaId(1));
@@ -118,7 +119,7 @@ class PromisingRegistryTest extends TestCase
     public function it_can_get_a_schema_for_subject_and_version(): void
     {
         $responses = [
-            new Response(200, [], '{"schema": "\"string\""}')
+            new Response(200, [], '{"schema": "\"string\""}'),
         ];
         $subject = 'test';
         $version = 2;
@@ -145,7 +146,7 @@ class PromisingRegistryTest extends TestCase
     public function it_can_get_the_schema_version(): void
     {
         $responses = [
-            new Response(200, [], '{"version": 3}')
+            new Response(200, [], '{"version": 3}'),
         ];
         $subject = 'test';
         $schema = AvroSchema::parse('{"type": "string"}');
@@ -171,7 +172,7 @@ class PromisingRegistryTest extends TestCase
     public function it_can_get_the_latest_version(): void
     {
         $responses = [
-            new Response(200, [], '{"schema": "\"string\""}')
+            new Response(200, [], '{"schema": "\"string\""}'),
         ];
 
         $subject = 'test';
@@ -199,8 +200,8 @@ class PromisingRegistryTest extends TestCase
             new Response(
                 404,
                 [],
-                sprintf('{"error_code": %d, "message": "test"}', SchemaNotFoundException::ERROR_CODE)
-            )
+                sprintf('{"error_code": %d, "message": "test"}', SchemaNotFoundException::ERROR_CODE),
+            ),
         ];
         $this->registry = new PromisingRegistry($this->clientWithMockResponses($responses));
 

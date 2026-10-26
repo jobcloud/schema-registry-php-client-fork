@@ -10,6 +10,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use FlixTech\SchemaRegistryApi\Schema\AvroReference;
 use GuzzleHttp\Promise\PromiseInterface;
+
 use function call_user_func;
 
 /**
@@ -69,7 +70,7 @@ class CachedRegistry implements Registry
             static function (PromiseInterface $promise) use ($closure) {
                 return $promise->then($closure);
             },
-            $closure
+            $closure,
         );
     }
 
@@ -95,7 +96,7 @@ class CachedRegistry implements Registry
             static function (PromiseInterface $promise) use ($closure) {
                 return $promise->then($closure);
             },
-            $closure
+            $closure,
         );
     }
 
@@ -128,7 +129,7 @@ class CachedRegistry implements Registry
             static function (PromiseInterface $promise) use ($closure) {
                 return $promise->then($closure);
             },
-            $closure
+            $closure,
         );
     }
 
@@ -158,7 +159,7 @@ class CachedRegistry implements Registry
             static function (PromiseInterface $promise) use ($closure) {
                 return $promise->then($closure);
             },
-            $closure
+            $closure,
         );
     }
 
@@ -188,7 +189,7 @@ class CachedRegistry implements Registry
             static function (PromiseInterface $promise) use ($closure) {
                 return $promise->then($closure);
             },
-            $closure
+            $closure,
         );
     }
 

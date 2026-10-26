@@ -51,7 +51,7 @@ class SimpleCacheAdapter implements CacheAdapter
     {
         $this->cache->set(
             $this->makeKeyFromSubjectAndVersion($subject, $version),
-            (string) $schema
+            (string) $schema,
         );
     }
 
@@ -77,11 +77,11 @@ class SimpleCacheAdapter implements CacheAdapter
     public function getIdWithHash(string $hash): ?int
     {
         $rawId = $this->cache->get($hash);
-        
+
         if (null === $rawId) {
             return null;
         }
-        
+
         return (int) $rawId;
     }
 
@@ -93,7 +93,7 @@ class SimpleCacheAdapter implements CacheAdapter
     public function getWithSubjectAndVersion(string $subject, int $version): ?AvroSchema
     {
         $rawSchema = $this->cache->get(
-            $this->makeKeyFromSubjectAndVersion($subject, $version)
+            $this->makeKeyFromSubjectAndVersion($subject, $version),
         );
 
         if (null === $rawSchema) {
@@ -131,7 +131,7 @@ class SimpleCacheAdapter implements CacheAdapter
     public function hasSchemaForSubjectAndVersion(string $subject, int $version): bool
     {
         $schema = $this->cache->get(
-            $this->makeKeyFromSubjectAndVersion($subject, $version)
+            $this->makeKeyFromSubjectAndVersion($subject, $version),
         );
 
         return null !== $schema;

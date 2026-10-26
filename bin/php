@@ -9,6 +9,7 @@ GROUP=${GROUP:-$( id -gn )}
 COMPOSER_HOME=${COMPOSER_HOME:-${HOME}/.composer}
 PHP_VERSION=${PHP_VERSION:-7.4}
 DOCKER_OPTS=${DOCKER_OPTS:-'-it'}
+DOCKER_NETWORK=${DOCKER_NETWORK:-host}
 
 exec docker run ${DOCKER_OPTS} --rm \
     -u $( id -u ${USER} ):$( id -g ${USER} ) \
@@ -18,6 +19,6 @@ exec docker run ${DOCKER_OPTS} --rm \
     -e PHP_IDE_CONFIG="serverName=schema-registry-client" \
     -e PHP_CS_FIXER_IGNORE_ENV=1 \
     -e COMPOSER_HOME="/tmp/composer" \
-    --net=host --sig-proxy=true --pid=host \
+    --net=${DOCKER_NETWORK} --sig-proxy=true --pid=host \
     --entrypoint="php" \
      schema-registry-client:${PHP_VERSION} "${@}"

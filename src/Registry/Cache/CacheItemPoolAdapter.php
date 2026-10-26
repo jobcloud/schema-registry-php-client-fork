@@ -96,7 +96,7 @@ class CacheItemPoolAdapter implements CacheAdapter
     public function getWithSubjectAndVersion(string $subject, int $version): ?AvroSchema
     {
         $item = $this->cacheItemPool->getItem(
-            $this->makeKeyFromSubjectAndVersion($subject, $version)
+            $this->makeKeyFromSubjectAndVersion($subject, $version),
         );
 
         if (!$item->isHit()) {
@@ -135,7 +135,7 @@ class CacheItemPoolAdapter implements CacheAdapter
     {
         return $this->cacheItemPool
             ->getItem(
-                $this->makeKeyFromSubjectAndVersion($subject, $version)
+                $this->makeKeyFromSubjectAndVersion($subject, $version),
             )
             ->isHit();
     }

@@ -13,10 +13,13 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\PromiseInterface;
 use InvalidArgumentException;
+use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+
 use const FlixTech\SchemaRegistryApi\Constants\VERSION_LATEST;
+
 use function FlixTech\SchemaRegistryApi\Requests\checkIfSubjectHasSchemaRegisteredRequest;
 use function FlixTech\SchemaRegistryApi\Requests\registerNewSchemaVersionWithSubjectRequest;
 use function FlixTech\SchemaRegistryApi\Requests\schemaRequest;
@@ -93,7 +96,7 @@ class PromisingRegistry implements AsynchronousRegistry
 
         $onFulfilled = function (ResponseInterface $response) {
             return AvroSchema::parse(
-                $this->getJsonFromResponseBody($response)['schema']
+                $this->getJsonFromResponseBody($response)['schema'],
             );
         };
 
@@ -111,7 +114,7 @@ class PromisingRegistry implements AsynchronousRegistry
 
         $onFulfilled = function (ResponseInterface $response) {
             return AvroSchema::parse(
-                $this->getJsonFromResponseBody($response)['schema']
+                $this->getJsonFromResponseBody($response)['schema'],
             );
         };
 
@@ -145,7 +148,7 @@ class PromisingRegistry implements AsynchronousRegistry
 
         $onFulfilled = function (ResponseInterface $response) {
             return AvroSchema::parse(
-                $this->getJsonFromResponseBody($response)['schema']
+                $this->getJsonFromResponseBody($response)['schema'],
             );
         };
 
@@ -156,7 +159,7 @@ class PromisingRegistry implements AsynchronousRegistry
      * @param RequestInterface $request
      * @param callable         $onFulfilled
      *
-     * @return PromiseInterface
+     * @return PromiseInterface<mixed, mixed>
      */
     private function makeRequest(RequestInterface $request, callable $onFulfilled): PromiseInterface
     {
@@ -174,20 +177,20 @@ class PromisingRegistry implements AsynchronousRegistry
         $body = (string) $response->getBody();
 
         try {
-            $decoded = \GuzzleHttp\json_decode($body, true);
+            $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
             if (!is_array($decoded)) {
                 throw new InvalidArgumentException(
-                    sprintf('response content "%s" is not a valid json object', $body)
+                    sprintf('response content "%s" is not a valid json object', $body),
                 );
             }
 
             return $decoded;
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException | JsonException $e) {
             throw new InvalidArgumentException(
                 sprintf('%s - with content "%s"', $e->getMessage(), $body),
                 $e->getCode(),
-                $e
+                $e,
             );
         }
     }

@@ -16,8 +16,6 @@ interface CacheAdapter
      *
      * @param AvroSchema $schema
      * @param int        $schemaId
-     *
-     * @return void
      */
     public function cacheSchemaWithId(AvroSchema $schema, int $schemaId): void;
 
@@ -27,8 +25,6 @@ interface CacheAdapter
      * @param AvroSchema $schema
      * @param string     $subject
      * @param int        $version
-     *
-     * @return void
      */
     public function cacheSchemaWithSubjectAndVersion(AvroSchema $schema, string $subject, int $version): void;
 
@@ -37,8 +33,6 @@ interface CacheAdapter
      *
      * @param int $schemaId
      * @param string $schemaHash
-     *
-     * @return void
      */
     public function cacheSchemaIdByHash(int $schemaId, string $schemaHash): void;
 

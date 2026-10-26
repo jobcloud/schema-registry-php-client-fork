@@ -1,3 +1,14 @@
 parameters:
     level: 8
     paths: [ src ]
+    # guzzlehttp/promises < 3 does not declare PromiseInterface as generic and
+    # Guzzle < 8 provides getResponse() on every RequestException, so the
+    # generic PHPDoc and the method_exists() guard are only valid with Guzzle 8.
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            identifier: generics.notGeneric
+            path: src
+        -
+            identifier: function.alreadyNarrowedType
+            path: src/Exception/ExceptionMap.php

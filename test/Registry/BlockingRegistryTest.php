@@ -27,8 +27,6 @@ class BlockingRegistryTest extends TestCase
      */
     private $blockingRegistry;
 
-    /**
-     */
     protected function setUp(): void
     {
         $this->asyncRegistry = $this->getMockForAbstractClass(AsynchronousRegistry::class);

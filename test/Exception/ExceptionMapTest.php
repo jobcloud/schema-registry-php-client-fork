@@ -18,6 +18,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Exception\SubjectNotFoundException;
 use FlixTech\SchemaRegistryApi\Exception\VersionNotFoundException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ResponseException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use LogicException;
@@ -36,16 +37,16 @@ class ExceptionMapTest extends TestCase
             'Invalid Avro schema',
             42201,
             (ExceptionMap::instance())(
-                new RequestException(
-                '422 Unprocessable Entity',
+                $this->createRequestException(
+                    '422 Unprocessable Entity',
                     new Request('GET', '/'),
                     new Response(
                         422,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":42201,"message": "Invalid Avro schema"}'
-                    )
+                        '{"error_code":42201,"message": "Invalid Avro schema"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -59,16 +60,16 @@ class ExceptionMapTest extends TestCase
             'Incompatible Avro schema',
             409,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '409 Conflict',
                     new Request('GET', '/'),
                     new Response(
                         409,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":409,"message": "Incompatible Avro schema"}'
-                    )
+                        '{"error_code":409,"message": "Incompatible Avro schema"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -82,16 +83,16 @@ class ExceptionMapTest extends TestCase
             'Error in the backend datastore',
             50001,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '500 Internal Server Error',
                     new Request('GET', '/'),
                     new Response(
                         500,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":50001,"message": "Error in the backend datastore"}'
-                    )
+                        '{"error_code":50001,"message": "Error in the backend datastore"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -105,16 +106,16 @@ class ExceptionMapTest extends TestCase
             'Invalid compatibility level',
             42203,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '422 Unprocessable Entity',
                     new Request('GET', '/'),
                     new Response(
                         422,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":42203,"message": "Invalid compatibility level"}'
-                    )
+                        '{"error_code":42203,"message": "Invalid compatibility level"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -128,16 +129,16 @@ class ExceptionMapTest extends TestCase
             'Invalid version',
             42202,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '422 Unprocessable Entity',
                     new Request('GET', '/'),
                     new Response(
                         422,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":42202,"message": "Invalid version"}'
-                    )
+                        '{"error_code":42202,"message": "Invalid version"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -151,16 +152,16 @@ class ExceptionMapTest extends TestCase
             'Error while forwarding the request to the master',
             50003,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '500 Internal server Error',
                     new Request('GET', '/'),
                     new Response(
                         500,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":50003,"message": "Error while forwarding the request to the master"}'
-                    )
+                        '{"error_code":50003,"message": "Error while forwarding the request to the master"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -174,16 +175,16 @@ class ExceptionMapTest extends TestCase
             'Operation timed out',
             50002,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '500 Internal server Error',
                     new Request('GET', '/'),
                     new Response(
                         500,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":50002,"message": "Operation timed out"}'
-                    )
+                        '{"error_code":50002,"message": "Operation timed out"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -197,16 +198,16 @@ class ExceptionMapTest extends TestCase
             'Schema not found',
             40403,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '404 Not Found',
                     new Request('GET', '/'),
                     new Response(
                         404,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":40403,"message": "Schema not found"}'
-                    )
+                        '{"error_code":40403,"message": "Schema not found"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -220,16 +221,16 @@ class ExceptionMapTest extends TestCase
             'Subject not found',
             40401,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '404 Not Found',
                     new Request('GET', '/'),
                     new Response(
                         404,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":40401,"message": "Subject not found"}'
-                    )
+                        '{"error_code":40401,"message": "Subject not found"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -243,16 +244,16 @@ class ExceptionMapTest extends TestCase
             'Version not found',
             40402,
             (ExceptionMap::instance())(
-                new RequestException(
+                $this->createRequestException(
                     '404 Not Found',
                     new Request('GET', '/'),
                     new Response(
                         404,
                         ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                        '{"error_code":40402,"message": "Version not found"}'
-                    )
+                        '{"error_code":40402,"message": "Version not found"}',
+                    ),
                 )
-            )
+            ),
         );
     }
 
@@ -262,12 +263,12 @@ class ExceptionMapTest extends TestCase
     public function it_should_not_process_exceptions_with_missing_response(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("RequestException has no response to inspect");
+        $this->expectExceptionMessage('RequestException has no response to inspect');
 
         (ExceptionMap::instance())(
-            new RequestException(
+            $this->createRequestException(
                 '404 Not Found',
-                new Request('GET', '/')
+                new Request('GET', '/'),
             )
         );
     }
@@ -290,14 +291,14 @@ class ExceptionMapTest extends TestCase
         $this->expectExceptionMessage('Invalid message body received - cannot find "error_code" field in response body');
 
         (ExceptionMap::instance())(
-            new RequestException(
+            $this->createRequestException(
                 '404 Not Found',
                 new Request('GET', '/'),
                 new Response(
                     404,
                     ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                    '{"message": "This JSON has no \'error_code\' field."}'
-                )
+                    '{"message": "This JSON has no \'error_code\' field."}',
+                ),
             )
         );
     }
@@ -311,16 +312,33 @@ class ExceptionMapTest extends TestCase
         $this->expectExceptionMessage('Unknown error code "99999"');
 
         (ExceptionMap::instance())(
-            new RequestException(
+            $this->createRequestException(
                 '404 Not Found',
                 new Request('GET', '/'),
                 new Response(
                     404,
                     ['Content-Type' => 'application/vnd.schemaregistry.v1+json'],
-                    '{"error_code":99999,"message": "Subject not found"}'
-                )
+                    '{"error_code":99999,"message": "Subject not found"}',
+                ),
             )
         );
+    }
+
+    private function createRequestException(
+        string $message,
+        Request $request,
+        ?Response $response = null
+    ): RequestException {
+        if (null === $response) {
+            return new RequestException($message, $request);
+        }
+
+        // Guzzle 8 only accepts a response in ResponseException, Guzzle 7 in RequestException.
+        if (class_exists(ResponseException::class)) {
+            return new ResponseException($message, $request, $response);
+        }
+
+        return new RequestException($message, $request, $response);
     }
 
     private function assertSchemaRegistryException(
@@ -328,8 +346,7 @@ class ExceptionMapTest extends TestCase
         string $expectedMessage,
         int $errorCode,
         SchemaRegistryException $exception
-    ): void
-    {
+    ): void {
         self::assertInstanceOf($exceptionClass, $exception);
         self::assertEquals($errorCode, $exception->getCode());
         self::assertEquals($expectedMessage, $exception->getMessage());

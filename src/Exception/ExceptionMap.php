@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+
 use function array_key_exists;
 use function sprintf;
 
@@ -61,7 +62,8 @@ final class ExceptionMap
 
     private function guardAgainstMissingResponse(RequestException $exception): ResponseInterface
     {
-        $response = $exception->getResponse();
+        // Guzzle 8 only provides getResponse() on ResponseException
+        $response = method_exists($exception, 'getResponse') ? $exception->getResponse() : null;
 
         if (!$response) {
             throw new RuntimeException('RequestException has no response to inspect', 0, $exception);
@@ -77,14 +79,14 @@ final class ExceptionMap
     private function guardAgainstMissingErrorCode(ResponseInterface $response): array
     {
         try {
-            $decodedBody = \GuzzleHttp\json_decode((string) $response->getBody(), true);
+            $decodedBody = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
             if (!is_array($decodedBody) || !array_key_exists(self::ERROR_CODE_FIELD_NAME, $decodedBody)) {
                 throw new RuntimeException(
                     sprintf(
                         'Invalid message body received - cannot find "error_code" field in response body "%s"',
-                        (string) $response->getBody()
-                    )
+                        (string) $response->getBody(),
+                    ),
                 );
             }
 
@@ -93,10 +95,10 @@ final class ExceptionMap
             throw new RuntimeException(
                 sprintf(
                     'Invalid message body received - cannot find "error_code" field in response body "%s"',
-                    (string) $response->getBody()
+                    (string) $response->getBody(),
                 ),
                 $e->getCode(),
-                $e
+                $e,
             );
         }
     }

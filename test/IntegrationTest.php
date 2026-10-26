@@ -16,10 +16,12 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_BACKWARD;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_FORWARD;
 use const FlixTech\SchemaRegistryApi\Constants\COMPATIBILITY_FULL;
 use const FlixTech\SchemaRegistryApi\Constants\VERSION_LATEST;
+
 use function FlixTech\SchemaRegistryApi\Requests\allSubjectsRequest;
 use function FlixTech\SchemaRegistryApi\Requests\allSubjectVersionsRequest;
 use function FlixTech\SchemaRegistryApi\Requests\changeDefaultCompatibilityLevelRequest;
@@ -96,10 +98,9 @@ INCOMPATIBLE;
      */
     private $invalidSchema = '{"invalid": "invalid"}';
 
-
     protected function setUp(): void
     {
-        if ((bool) getenv('ENABLE_INTEGRATION_TEST') === false) {
+        if (false === (bool) getenv('ENABLE_INTEGRATION_TEST')) {
             self::markTestSkipped('Integration tests are disabled');
         }
 
@@ -107,8 +108,8 @@ INCOMPATIBLE;
             'base_uri' => sprintf(
                 'http://%s:%s',
                 getenv('TEST_SCHEMA_REGISTRY_HOST'),
-                getenv('TEST_SCHEMA_REGISTRY_PORT')
-            )
+                getenv('TEST_SCHEMA_REGISTRY_PORT'),
+            ),
         ]);
     }
 
@@ -121,79 +122,79 @@ INCOMPATIBLE;
             ->sendAsync(allSubjectsRequest())
             ->then(
                 function (ResponseInterface $request) {
-                    $this->assertEmpty(\GuzzleHttp\json_decode($request->getBody()->getContents(), true));
-                }
+                    $this->assertEmpty(json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));
+                },
             )->wait();
 
         $this->client
             ->sendAsync(registerNewSchemaVersionWithSubjectRequest($this->baseSchema, self::SUBJECT_NAME))
             ->then(
                 function (ResponseInterface $request) {
-                    $this->assertEquals(1, \GuzzleHttp\json_decode($request->getBody()->getContents(), true)['id']);
-                }
+                    $this->assertEquals(1, json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['id']);
+                },
             )->wait();
 
         $this->client
             ->sendAsync(schemaRequest('1'))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertJsonStringEqualsJsonString($this->baseSchema, $decodedBody['schema']);
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(checkIfSubjectHasSchemaRegisteredRequest(self::SUBJECT_NAME, $this->baseSchema))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(1, $decodedBody['id']);
                     $this->assertEquals(1, $decodedBody['version']);
                     $this->assertEquals(self::SUBJECT_NAME, $decodedBody['subject']);
                     $this->assertJsonStringEqualsJsonString($this->baseSchema, $decodedBody['schema']);
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(singleSubjectVersionRequest(self::SUBJECT_NAME, VERSION_LATEST))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(self::SUBJECT_NAME, $decodedBody['subject']);
                     $this->assertEquals(1, $decodedBody['version']);
                     $this->assertJsonStringEqualsJsonString($this->baseSchema, $decodedBody['schema']);
                     $this->assertEquals(1, $decodedBody['id']);
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(checkSchemaCompatibilityAgainstVersionRequest(
                 $this->compatibleSchemaEvolution,
                 self::SUBJECT_NAME,
-                VERSION_LATEST
+                VERSION_LATEST,
             ))->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertTrue($decodedBody['is_compatible']);
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(checkSchemaCompatibilityAgainstVersionRequest(
                 $this->incompatibleSchemaEvolution,
                 self::SUBJECT_NAME,
-                VERSION_LATEST
+                VERSION_LATEST,
             ))->otherwise(
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         IncompatibleAvroSchemaException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
@@ -202,9 +203,9 @@ INCOMPATIBLE;
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         InvalidAvroSchemaException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
@@ -213,9 +214,9 @@ INCOMPATIBLE;
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         SubjectNotFoundException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
@@ -224,9 +225,9 @@ INCOMPATIBLE;
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         InvalidVersionException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
@@ -235,9 +236,9 @@ INCOMPATIBLE;
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         VersionNotFoundException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
@@ -246,25 +247,25 @@ INCOMPATIBLE;
                 function (RequestException $exception) {
                     $this->assertInstanceOf(
                         SchemaNotFoundException::class,
-                        (ExceptionMap::instance())($exception)
+                        (ExceptionMap::instance())($exception),
                     );
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(registerNewSchemaVersionWithSubjectRequest($this->compatibleSchemaEvolution, self::SUBJECT_NAME))
             ->then(
                 function (ResponseInterface $request) {
-                    $this->assertEquals(2, \GuzzleHttp\json_decode($request->getBody()->getContents(), true)['id']);
-                }
+                    $this->assertEquals(2, json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['id']);
+                },
             )->wait();
 
         $this->client
             ->sendAsync(allSubjectVersionsRequest(self::SUBJECT_NAME))
             ->then(
                 function (ResponseInterface $request) {
-                    $this->assertEquals([1, 2], \GuzzleHttp\json_decode($request->getBody()->getContents(), true));
-                }
+                    $this->assertEquals([1, 2], json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));
+                },
             )->wait();
     }
 
@@ -277,52 +278,52 @@ INCOMPATIBLE;
             ->sendAsync(defaultCompatibilityLevelRequest())
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(
                         COMPATIBILITY_BACKWARD,
-                        $decodedBody['compatibilityLevel']
+                        $decodedBody['compatibilityLevel'],
                     );
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(changeDefaultCompatibilityLevelRequest(COMPATIBILITY_FULL))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(
                         COMPATIBILITY_FULL,
-                        $decodedBody['compatibility']
+                        $decodedBody['compatibility'],
                     );
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(changeSubjectCompatibilityLevelRequest(self::SUBJECT_NAME, COMPATIBILITY_FORWARD))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(
                         COMPATIBILITY_FORWARD,
-                        $decodedBody['compatibility']
+                        $decodedBody['compatibility'],
                     );
-                }
+                },
             )->wait();
 
         $this->client
             ->sendAsync(subjectCompatibilityLevelRequest(self::SUBJECT_NAME))
             ->then(
                 function (ResponseInterface $request) {
-                    $decodedBody = \GuzzleHttp\json_decode($request->getBody()->getContents(), true);
+                    $decodedBody = json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                     $this->assertEquals(
                         COMPATIBILITY_FORWARD,
-                        $decodedBody['compatibilityLevel']
+                        $decodedBody['compatibilityLevel'],
                     );
-                }
+                },
             )->wait();
     }
 }

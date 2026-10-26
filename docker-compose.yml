@@ -1,5 +1,4 @@
 ---
-version: '3'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:${CONFLUENT_VERSION}
@@ -48,6 +47,7 @@ services:
 
 networks:
   schema-registry-net:
+    name: schema-registry-php-client-net
     driver: bridge
     ipam:
       driver: default
