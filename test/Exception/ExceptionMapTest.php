@@ -17,6 +17,7 @@ use FlixTech\SchemaRegistryApi\Exception\SchemaNotFoundException;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Exception\SubjectNotFoundException;
 use FlixTech\SchemaRegistryApi\Exception\VersionNotFoundException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ResponseException;
 use GuzzleHttp\Psr7\Request;
@@ -94,6 +95,18 @@ class ExceptionMapTest extends TestCase
                 )
             ),
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_rethrow_exceptions_that_are_not_request_exceptions(): void
+    {
+        $exception = new ConnectException('connection refused', new Request('GET', '/'));
+
+        $this->expectExceptionObject($exception);
+
+        (ExceptionMap::instance())($exception);
     }
 
     /**

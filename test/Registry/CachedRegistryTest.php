@@ -428,4 +428,62 @@ class CachedRegistryTest extends TestCase
             $subjectNotFoundException,
         );
     }
+
+    /**
+     * @test
+     * @dataProvider provideRegistryCalls
+     * @throws SchemaRegistryException
+     */
+    public function it_should_not_cache_exceptions_passed_through_promises(string $method, array $arguments): void
+    {
+        $exception = new SubjectNotFoundException('not found');
+
+        $this->cacheAdapter->method('hasSchemaIdForHash')->willReturn(false);
+        $this->cacheAdapter->method('hasSchemaForId')->willReturn(false);
+        $this->cacheAdapter->method('hasSchemaForSubjectAndVersion')->willReturn(false);
+
+        $this->registryMock
+            ->expects(self::once())
+            ->method($method)
+            ->willReturn(new FulfilledPromise($exception));
+
+        $this->cacheAdapter->expects(self::never())->method('cacheSchemaWithSubjectAndVersion');
+        $this->cacheAdapter->expects(self::never())->method('cacheSchemaWithId');
+        $this->cacheAdapter->expects(self::never())->method('cacheSchemaIdByHash');
+
+        $result = $this->cachedRegistry->{$method}(...$arguments);
+
+        self::assertInstanceOf(PromiseInterface::class, $result);
+        self::assertSame($exception, $result->wait());
+    }
+
+    /**
+     * @test
+     * @throws SchemaRegistryException
+     */
+    public function it_should_throw_exceptions_returned_directly_by_the_registry(): void
+    {
+        $exception = new SubjectNotFoundException('not found');
+
+        $this->registryMock
+            ->method('schemaVersion')
+            ->willReturn($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->cachedRegistry->schemaVersion($this->subject, $this->schema);
+    }
+
+    /**
+     * @return array<string, array{string, array<int, mixed>}>
+     */
+    public function provideRegistryCalls(): array
+    {
+        return [
+            'schemaVersion' => ['schemaVersion', ['test', AvroSchema::parse('{"type": "string"}')]],
+            'schemaId' => ['schemaId', ['test', AvroSchema::parse('{"type": "string"}')]],
+            'schemaForId' => ['schemaForId', [1]],
+            'schemaForSubjectAndVersion' => ['schemaForSubjectAndVersion', ['test', 1]],
+        ];
+    }
 }

@@ -20,6 +20,7 @@ PHP_CS_FIXER_VERSION ?= 3.95.27
 PHPUNIT ?= vendor/bin/phpunit
 PHP ?= bin/php
 PHP_VERSION ?= 7.4
+COVERAGE_MIN ?= 100
 XDEBUG_VERSION ?= 3.1.5
 XDEBUG_OPTIONS ?= -d xdebug.mode=off
 export
@@ -60,6 +61,7 @@ coverage:
 	mkdir -p build
 	PHP_VERSION=$(PHP_VERSION) $(PHP) -d xdebug.mode=coverage vendor/bin/phpunit --exclude-group integration \
 	  --coverage-clover=build/coverage.clover --coverage-text
+	PHP_VERSION=$(PHP_VERSION) $(PHP) -d xdebug.mode=off bin/coverage-check.php build/coverage.clover $(COVERAGE_MIN)
 
 ci-local: cs-fixer phpstan phpunit
 
