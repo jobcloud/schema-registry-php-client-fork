@@ -45,5 +45,8 @@
     "psr-4": {
       "FlixTech\\SchemaRegistryApi\\Test\\": "test/"
     }
+  },
+  "config": {
+    "bump-after-update": "dev"
   }
 }
