@@ -275,3 +275,10 @@ In order to contribute to this library, follow this workflow:
 - Run tests to verify that the tests are passing
 - Open a PR to the upstream
 - Be happy about contributing to open source!
+
+## Agent instructions
+
+Coding agents (e.g. GitHub Copilot) read instructions from the repository root.
+
+- `AGENTS.md` – shared, project-specific instructions for everyone working on this repository (committed).
+- `AGENTS.local.md` – your own personal instructions (listed in `.gitignore`, never committed).
