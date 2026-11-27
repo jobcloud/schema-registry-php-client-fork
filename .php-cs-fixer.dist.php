@@ -33,10 +33,16 @@ return (new PhpCsFixer\Config())
             // 'parameters' is left out on purpose: trailing commas in parameter lists need PHP 8.0
             'trailing_comma_in_multiline' => [
                 'elements' => [
-                    'arrays',
                     'arguments',
+                    'arrays',
+                    'match',
                 ],
             ],
+            'function_declaration' => [
+                'closure_function_spacing' => 'one',
+                'closure_fn_spacing' => 'none',
+            ],
+            'class_definition' => ['space_before_parenthesis' => false],
             'no_empty_phpdoc' => true,
             'phpdoc_trim' => true,
             'phpdoc_no_empty_return' => true,
